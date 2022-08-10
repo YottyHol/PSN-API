@@ -1,24 +1,40 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 const axios = require('axios')
+import filter from '../../../utils/filter'
+import Env from '@ioc:Adonis/Core/Env'
 
 export default class VideoController {
   public async storeVideos(ctx: HttpContextContract) {
+    let response
+    let results = []
     const params = {
-      key: '',
+      key: Env.get('APP_KEY'),
       channelId: 'UCuTaETsuCOkJ0H_GAztWt0Q',
       part: 'snippet',
       order: 'date',
       maxResults: '20',
+      pageToken: '',
     }
     try {
-      const response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
-      return response.data
+      //do {
+      //  if (response) {
+      //    params.pageToken = response.data.nextPageToken
+      //   }
+      response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
+      results = results.concat(response.data.items)
+
+      //} while (response.data.nextPageToken)
+      return results
     } catch (error) {
-      console.log(error.response.data.error)
+      console.log(error)
     }
   }
+  public async checkFilter(ctx: HttpContextContract) {
+    filter()
+    console.log(Env.get('APP_KEY'))
+  }
 
-  private async getVideos() {
+  /*   private async getVideos() {
     const params = {
       key: '',
       channelId: 'UCuTaETsuCOkJ0H_GAztWt0Q',
@@ -37,5 +53,5 @@ export default class VideoController {
       .catch((error) => {
         console.log(error)
       })
-  }
+  } */
 }

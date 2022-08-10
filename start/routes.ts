@@ -31,5 +31,7 @@ Route.group(() => {
     return Database.from('videos').select('*')
   })
   Route.get('store', 'VideoController.storeVideos')
+
+  Route.get('check', 'VideoController.checkFilter')
   //Route.post('videos', 'VideoController.storeVideos')
 }).prefix('/api')
