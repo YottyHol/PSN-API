@@ -9,29 +9,33 @@ export default class VideoController {
     let results = []
     const params = {
       key: Env.get('APP_KEY'),
-      channelId: 'UCuTaETsuCOkJ0H_GAztWt0Q',
+      channelId: '',
       part: 'snippet',
       order: 'date',
       maxResults: '20',
       pageToken: '',
     }
-    try {
-      //do {
-      //  if (response) {
-      //    params.pageToken = response.data.nextPageToken
-      //   }
-      response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
-      results = results.concat(response.data.items)
+    const channels = ['UCuTaETsuCOkJ0H_GAztWt0Q', 'UC_A--fhX5gea0i4UtpD99Gg']
+    for (const channel of channels) {
+      params.channelId = channel
+      try {
+        //do {
+        //  if (response) {
+        //    params.pageToken = response.data.nextPageToken
+        //   }
+        response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
+        const json = await response.json()
+        results = results.concat(response.data.items)
 
-      //} while (response.data.nextPageToken)
+        //} while (response.data.nextPageToken)
+      } catch (error) {
+        console.log(error)
+      }
       return results
-    } catch (error) {
-      console.log(error)
     }
   }
   public async checkFilter(ctx: HttpContextContract) {
     filter()
-    console.log(Env.get('APP_KEY'))
   }
 
   /*   private async getVideos() {
