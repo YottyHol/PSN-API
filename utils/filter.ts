@@ -1,45 +1,34 @@
 import { readFileSync } from 'fs'
-import { readFile } from 'fs'
 const file = './data/search_filter'
 import moment from 'moment'
 
 export default function filter(data) {
-
+  var id = 0
   const contents = readFileSync(file, 'utf-8').toString()
   const terms = contents.split('\r\n')
   const regex = `/|${terms.join('|')}|/g`
   var insertArray: {
-    id: string
+    id: number
     title: string
     date: string
   }[] = []
-
-  readFile('./data/results.json', 'utf8', (err, jsonString) => {
-    if (err) {
-      console.log('File read failed:', err)
-      return
-    }
-
-    var json = JSON.parse(jsonString)
-
-    for (const video of json) {
-
+  if (data) {
+    for (const video of data) {
       const found = video.snippet.title.match(regex)
 
       var insert = {
-        id: '',
+        id: 0,
         title: '',
         date: '',
       }
       if (found) {
-        insert.id = video.id.videoId
+        insert.id = id
         insert.title = video.snippet.title
         insert.date = moment(video.snippet.publishedAt).format('YYYY-MM-DD HH:MM:SS')
-
+        id++
         insertArray.push(insert)
       }
     }
-    console.log(insertArray)
-  })
-
-
+  }
+  return insertArray
+}

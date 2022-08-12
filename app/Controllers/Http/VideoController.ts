@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 const axios = require('axios')
 import filter from '../../../utils/filter'
 import Env from '@ioc:Adonis/Core/Env'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class VideoController {
   public async storeVideos(ctx: HttpContextContract) {
@@ -19,43 +20,22 @@ export default class VideoController {
     for (const channel of channels) {
       params.channelId = channel
       try {
-        //do {
-        //  if (response) {
-        //    params.pageToken = response.data.nextPageToken
-        //   }
-        response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
-        const json = await response.json()
-        results = results.concat(response.data.items)
+        do {
+          if (response) {
+            params.pageToken = response.data.nextPageToken
+          }
+          response = await axios.get('https://www.googleapis.com/youtube/v3/search', { params })
 
-        //} while (response.data.nextPageToken)
+          results = results.concat(response.data.items)
+        } while (response.data.nextPageToken)
       } catch (error) {
         console.log(error)
       }
-      return results
     }
-  }
-  public async checkFilter(ctx: HttpContextContract) {
-    filter()
+
+    await Database.insertQuery().table('videos').returning(['id']).multiInsert(filter(results))
+    //return 200
   }
 
-  /*   private async getVideos() {
-    const params = {
-      key: '',
-      channelId: 'UCuTaETsuCOkJ0H_GAztWt0Q',
-      part: 'snippet',
-      order: 'date',
-      maxResults: '20',
-    }
-    return axios
-      .get('https://www.googleapis.com/youtube/v3/search', { params })
-      .then((response) => {
-        response.data
-        console.log(response.data)
-        console.log(response.data.url)
-        console.log(response.data.explanation)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  } */
+  public async checkFilter(ctx: HttpContextContract) {}
 }
